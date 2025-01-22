@@ -1,11 +1,11 @@
 import express, { Router } from "express";
-import _settings from "../functions/settings";
+import _settings from "../../functions/files/settings";
 import path from "path";
-import isPathValid from "@functions/pathvalidator";
+import isPathValid from "@functions/files/pathvalidator";
 import fs from "fs/promises";
-import authenticator from "../middleware/authenticator";
+import authenticator from "../../middleware/authenticator";
 import Logging, { ApiType } from "@functions/logging";
-import zipFolder from "@functions/zip";
+import zipFolder from "@functions/files/zip";
 
 const settings = _settings();
 const router: Router = express.Router();

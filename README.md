@@ -1,11 +1,5 @@
-# local-cloud
+# Test project
 
-This program can turn your desktop into a local cloud server. This is a website which will run locally over your wifi(
-without port forwarding) and will be accessible to all your devices.
-
-You can now access and transfer files from your different devices with ease. The new version (version 2) has been
-implemented using vuejs. Version 1 was a pilot project and is not recommended for use(it is not supported by me any
-longer).
 
 ## Version 3
 
@@ -16,11 +10,6 @@ Please check the other development branches for updates.
 - New fresh UI, see images below
 - Configuration file for authentication - don't expose all your files to everyone
 
-## Donation
-
-Support me to keep making this project better :heart:
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/rishibidani?country.x=AU&locale.x=en_AU)
 
 ## Table Of Contents
 
@@ -35,9 +24,7 @@ Support me to keep making this project better :heart:
 
 ## Images :file_folder:
 
-These images might be from older versions of the same app and might appear different from the one you setup. Please open
-an issue for requesting icons or suggesting any colour improvements.
-### Version 3
+### Version 0.1
 ![image](https://user-images.githubusercontent.com/64310471/235914376-f4aacb69-5589-494a-92df-e93e7c0affc1.png)
 
 ![image](https://user-images.githubusercontent.com/64310471/235914944-1fedb49f-1bde-423d-88cd-4af7873e74b5.png)

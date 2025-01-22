@@ -1,10 +1,9 @@
 import express from "express";
 import cors from "cors";
-// import * as localIpV4Address from "local-ipv4-address";
 
 import auth from "./middleware/authenticator";
 
-import createStorageFolders from "@functions/createstoragefolders";
+import createStorageFolders from "@functions/files/createstoragefolders";
 
 // setup the folders - data, temp
 (async function () {
@@ -22,22 +21,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // routes =============================================================
-import { authenticationRouter } from "@routes/authentication";
+import { authenticationRouter } from "@routes/user/authentication";
 app.use("/auth", authenticationRouter);
 
-import { router as navigationRouter } from "@routes/navigation";
+import { router as navigationRouter } from "@routes/files/navigation";
 app.use("/navigate", navigationRouter);
 
-import { router as uploadRouter } from "@routes/upload";
+import { router as uploadRouter } from "@routes/files/upload";
 app.use("/upload", uploadRouter);
 
-import { router as downloadRouter } from "@routes/download";
+import { router as downloadRouter } from "@routes/files/download";
 app.use("/download", downloadRouter);
 
-import { router as CreateRouter } from "@routes/create";
+import { router as CreateRouter } from "@routes/files/create";
 app.use("/create", CreateRouter);
 
-import { router as DeleteRouter } from "@routes/delete";
+import { router as DeleteRouter } from "@routes/files/delete";
 app.use("/delete", DeleteRouter);
 // ====================================================================
 
@@ -46,10 +45,10 @@ app.get("/", (req, res) => {
 });
 
 // route purely for testing authorisation
-app.get("/testauth", auth, (req, res) => {
+/* app.get("/testauth", auth, (req, res) => {
     console.log((req as any).user);
     res.send("Authorisation is working");
-});
+}); */
 
 const PORT = process.env.PORT || 5000;
 // listen to port at 0.0.0.0

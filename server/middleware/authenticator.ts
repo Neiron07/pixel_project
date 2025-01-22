@@ -2,7 +2,7 @@ import express from "express";
 import * as jwt from "jsonwebtoken";
 import Logging from "@functions/logging";
 
-import _settings from "@functions/settings";
+import _settings from "@functions/files/settings";
 const settings = _settings();
 
 interface IPermissions {

@@ -1,8 +1,8 @@
 import type { Request } from "express";
 
-import _settings from "@functions/settings";
+import _settings from "@functions/files/settings";
 import * as path from "path";
-import isPathValid from "@functions/pathvalidator";
+import isPathValid from "@functions/files/pathvalidator";
 import { FileFilterCallback } from "multer";
 const settings = _settings();
 

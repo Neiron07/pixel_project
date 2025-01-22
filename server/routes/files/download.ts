@@ -1,9 +1,8 @@
-// Copyright Rishi Bidani
 import express from "express";
 const router = express.Router();
 
 import path from "path";
-import _settings from "@functions/settings";
+import _settings from "@functions/files/settings";
 const settings = _settings();
 
 import Logging, { ApiType } from "@functions/logging";

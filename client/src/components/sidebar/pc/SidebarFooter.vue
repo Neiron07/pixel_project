@@ -1,9 +1,5 @@
 <template>
     <footer class="flex-column gap-1">
-        <div class="footer-item settings">
-            <img src="~@/assets/icons/settings.svg" alt="settings" />
-            <span>settings</span>
-        </div>
         <div v-if="!isLoggedIn" class="footer-item login flex" @click="() => $emit('click-login')">
             login
         </div>

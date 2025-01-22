@@ -3,10 +3,10 @@ const router = express.Router();
 import path from "path";
 import { access } from "fs/promises";
 
-import { getFiles, getFolders, removeItemsFromList } from "@functions/filesfolders";
-import authenticator from "../middleware/authenticator";
+import { getFiles, getFolders, removeItemsFromList } from "@functions/files/filesfolders";
+import authenticator from "../../middleware/authenticator";
 
-import _settings from "@functions/settings";
+import _settings from "@functions/files/settings";
 import { Dirent } from "fs";
 const settings = _settings();
 

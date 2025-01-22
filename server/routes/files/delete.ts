@@ -1,9 +1,9 @@
 import express from "express";
 const router = express.Router();
 import path from "path";
-import authenticator from "../middleware/authenticator";
+import authenticator from "../../middleware/authenticator";
 import fs from "fs/promises";
-import _settings from "@functions/settings";
+import _settings from "@functions/files/settings";
 import Logging, { ApiType } from "@functions/logging";
 
 const settings = _settings();

@@ -1,13 +1,10 @@
 <template>
     <section class="pc">
         <header>
-            <h1>Local Cloud</h1>
+            <h1>Pixel Cloud</h1>
             <Username />
         </header>
         <button class="button create-folder" @click="createFolderModal">create folder</button>
-        <a href="/pictures" class="sidebar-item">pictures</a>
-        <a href="/videos" class="sidebar-item">videos</a>
-        <a href="/music" class="sidebar-item">music</a>
         <a href="/documents" class="sidebar-item">documents</a>
         <FileInformation :file-information="fileInformation" :current-path="currentPath" />
         <SidebarFooter @click-login="loginModal" />
