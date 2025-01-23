@@ -2,8 +2,8 @@
     <BaseModal :modal-name="'login'" :heading="'Login'" @submit="loginSubmit">
         <div class="form-container flex-column gap-1">
             <div class="form-item">
-                <label for="username">Username</label>
-                <input type="text" name="username" id="username" />
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" />
             </div>
             <div class="form-item">
                 <label for="password">Password</label>
@@ -36,7 +36,7 @@ async function loginSubmit(event: Event) {
     const formData = new FormData(form);
 
     const response = await authorisation.login(
-        formData.get("username") as string,
+        formData.get("email") as string,
         formData.get("password") as string
     );
 

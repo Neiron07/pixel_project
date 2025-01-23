@@ -1,12 +1,12 @@
 class Authorisation {
-    static async login(username: string, password: string) {
+    static async login(email: string, password: string) {
         const response = await fetch(`/auth/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                username: username,
+                email: email,
                 password: password,
             }),
         });
