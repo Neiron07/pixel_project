@@ -52,7 +52,8 @@ const worker = new Worker(
     }
   },
   {
-    connection: redisConnection, // Передаём подключение Redis
+    connection: redisConnection,
+    concurrency: 5, // Максимум 5 одновременных задач
   }
 );
 

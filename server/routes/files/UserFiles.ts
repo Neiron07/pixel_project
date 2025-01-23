@@ -20,7 +20,7 @@ const storage = multer.memoryStorage();  // Используем memoryStorage �
 const router = express.Router();
 const upload = multer({ storage: storage }).any();
 
-router.post("/", authenticator, async (req: express.Request, res: express.Response) => {
+router.post("/upload", authenticator, async (req: express.Request, res: express.Response) => {
     upload(req, res, async (err) => {
         if (err) {
             Logging.upload(ApiType.POST, "[ERROR] Error uploading file");
@@ -58,15 +58,15 @@ router.post("/", authenticator, async (req: express.Request, res: express.Respon
     });
 });
 
-router.get("/:fileId", authenticator, async (req: express.Request, res: express.Response) => {
-    const userId = (req as any).user?.id;  // Получаем userId из сессии
+router.get("/file/:fileId", authenticator, async (req: express.Request, res: express.Response) => {
+    const userId = (req as any).user?.id;
     const fileId = req.params.fileId;
 
     try {
         const file = await File.findOne({
             where: {
                 id: fileId,
-                userId: userId,  // Проверяем, что файл принадлежит текущему пользователю
+                userId: userId
             },
         });
 
@@ -74,12 +74,41 @@ router.get("/:fileId", authenticator, async (req: express.Request, res: express.
             return res.status(404).send("File not found.");
         }
 
-        // Возвращаем файл как бинарные данные
+        // Устанавливаем заголовки для скачивания
         res.setHeader("Content-Type", "application/octet-stream");
         res.setHeader("Content-Disposition", `attachment; filename=${file.filename}`);
-        res.send(file.fileData);  // Отправляем бинарные данные файла
+        
+        // Отправляем бинарные данные файла
+        res.send(file.fileData);
     } catch (error) {
+        console.error("Error fetching file:", error);
         res.status(500).send("Error fetching file.");
+    }
+});
+
+
+router.get("/all", authenticator, async (req: express.Request, res: express.Response) => {
+    const userId = (req as any).user?.id;
+
+    try {
+        const files = await File.findAll({
+            where: {
+                userId: userId
+            },
+        });
+
+        if (!files || files.length === 0) {
+            return res.status(404).send("No files found.");
+        }
+
+        res.status(200).json(files.map(file => ({
+            id: file.id,
+            filename: file.filename,
+            status: file.status,
+            reason: file.reason,
+        })));
+    } catch (error) {
+        res.status(500).send("Error fetching files.");
     }
 });
 

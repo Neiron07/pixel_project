@@ -6,8 +6,8 @@ POST http://localhost:5000/auth/login
 Content-Type: application/json
 
 {
-    "email": "te@gmail.com",
-    "password": "helloworld"
+    "email": "admin@gmail.com",
+    "password": "secretadmin"
 }
 
 ###
@@ -23,7 +23,7 @@ Content-Type: application/json
 
 ###
 GET http://localhost:5000/auth/whoami
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiZW1haWwiOiJ0ZUBnbWFpbC5jb20iLCJpYXQiOjE3Mzc1OTAwOTcsImV4cCI6MTczNzYwMDg5N30.YyOp03o4yv5jEDSJARW8HpI4cZP6imGHTYGjI_zgBhk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3Mzc2Mzc3MjIsImV4cCI6MTczNzY0ODUyMn0.2UQi_Jphxy0O69bHXVhCVXMoBufT6p5TnMfE-MTggpc
 
 
 ###
@@ -36,3 +36,7 @@ GET http://localhost:5000/navigate/
 
 ###
 GET http://localhost:5000/navigate/first
+
+###
+GET http://localhost:5000/files/all
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3Mzc2Mzc3MjIsImV4cCI6MTczNzY0ODUyMn0.2UQi_Jphxy0O69bHXVhCVXMoBufT6p5TnMfE-MTggpc

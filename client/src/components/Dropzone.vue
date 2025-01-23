@@ -17,7 +17,7 @@ import { Dropzone } from "dropzone";
 // Dropzone.autoDiscover = true;
 const dropzone = ref<HTMLFormElement | null>(null);
 const dropzoneOptions = {
-    url: "/upload",
+    url: "/files/upload",
     headers: {
         Authorization: "Bearer " + localStorage.getItem("token"),
     },

@@ -2,7 +2,7 @@ import express from "express";
 import bcrypt from "bcrypt";
 import { body, validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
-import jwtauthenticator from "../../middleware/authenticator"; // Укажите корректный путь до вашего middleware
+import jwtauthenticator from "../../middleware/authenticator";
 import User from "../../models/user";
 import { SECRET_KEY, TOKEN_EXPIRATION } from "../../config/config";
 

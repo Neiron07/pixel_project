@@ -1,11 +1,10 @@
 import express from "express";
 import cors from "cors";
 import { initializeDatabase } from "./models";
-
 import createStorageFolders from "@functions/files/createstoragefolders";
 import { worker } from './functions/files/fileProcessor';
 
-// setup the folders - data, temp
+
 (async function () {
     await createStorageFolders();
     await initializeDatabase();
@@ -15,7 +14,6 @@ const { Server } = require("http");
 const app: express.Application = express();
 const http = Server(app);
 
-// middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -39,8 +37,8 @@ app.use("/auth", authenticationRouter);
 import { router as navigationRouter } from "@routes/files/navigation";
 app.use("/navigate", navigationRouter);
 
-import { router as uploadRouter } from "@routes/files/UserFiles";
-app.use("/upload", uploadRouter);
+import { router as filesRouter } from "@routes/files/UserFiles";
+app.use("/files", filesRouter);
 
 import { router as downloadRouter } from "@routes/files/download";
 app.use("/download", downloadRouter);

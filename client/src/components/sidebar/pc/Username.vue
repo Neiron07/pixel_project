@@ -29,7 +29,7 @@ const username: Ref<string> = ref<string>("");
 
 onMounted(async () => {
     const me = await Authorisation.whoami();
-    username.value = await me.text();
+    username.value = await me.username();
 });
 </script>
 <style scoped>

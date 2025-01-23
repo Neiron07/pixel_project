@@ -1,9 +1,9 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import * as jwt from "jsonwebtoken";
 import Logging from "@functions/logging";
-import { SECRET_KEY } from "./../config/config";
-
+import { SECRET_KEY } from "../config/config";
 import _settings from "@functions/files/settings";
+
 const settings = _settings();
 
 interface IPermissions {
@@ -25,47 +25,58 @@ function setPermissions(isAdmin: boolean, userAccount: any): IPermissions {
             canDeleteFile: true,
             canDeleteFolder: true,
         };
-    } else {
-        return {
-            canCreateFolder: userAccount.permissions.createFolder ?? false,
-            canUpload: userAccount.permissions.upload ?? false,
-            canDownload: userAccount.permissions.download ?? false,
-            canNavigate: userAccount.permissions.navigate ?? false,
-            canDeleteFile: userAccount.permissions.delete ?? false,
-            canDeleteFolder: userAccount.permissions.delete ?? false,
-        };
     }
+
+    return {
+        canCreateFolder: userAccount.permissions.createFolder ?? false,
+        canUpload: userAccount.permissions.upload ?? false,
+        canDownload: userAccount.permissions.download ?? false,
+        canNavigate: userAccount.permissions.navigate ?? false,
+        canDeleteFile: userAccount.permissions.delete ?? false,
+        canDeleteFolder: userAccount.permissions.delete ?? false,
+    };
 }
 
 async function jwtauthenticator(
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-) {
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> {
     Logging.attempting(req);
     const accountsExist = (await settings).accounts;
-    // check if the settings include accounts
-    if (!accountsExist) {
-        // if there are no accounts, continue
-        next();
-    } else {
-        // if there are accounts, check for authorisation
-        const authHeader = req.headers["authorization"];
-        const token = authHeader && authHeader.split(" ")[1];
-        // if there is no token, return 401
-        if (token == null) return res.sendStatus(401);
 
-        // verify the token
-        const secretKey = SECRET_KEY;
-        jwt.verify(token, secretKey, async (err: any, user: any) => {
-            console.log(err);
-            // if there is an error, return 403
-            if (err) return res.sendStatus(403);
-            // if the token is verified, continue
-            (req as any).user = user;
-        });
-        next();
+    if (!accountsExist) {
+        return next();
     }
+
+    const authHeader: any = req.headers["authorization"];
+    if (!authHeader) {
+        res.status(401).send("Authorization header is missing. Please provide a valid token.");
+    }
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+        res.status(401).send("Token is missing. Please provide a valid token.");
+    }
+
+    try {
+        const decoded = await verifyToken(token);
+        (req as any).user = decoded;
+        return next();
+    } catch (err) {
+        res.status(403).send("Invalid token. Access denied.");
+    }
+}
+
+function verifyToken(token: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, SECRET_KEY, (err, decoded) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(decoded);
+            }
+        });
+    });
 }
 
 export default jwtauthenticator;

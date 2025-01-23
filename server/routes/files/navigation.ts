@@ -130,6 +130,7 @@ router.get(":pathname(/*)?", authenticator, async (req, res) => {
     }
 });
 
+
 function intersectionShowFolder<T>(
     folders: T[],
     searchList: string[],

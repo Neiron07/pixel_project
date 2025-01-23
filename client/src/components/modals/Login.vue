@@ -18,13 +18,15 @@
 import { ref, onMounted, inject } from "vue";
 import BaseModal from "./BaseModal.vue";
 
-// requests
+// Импорт запросов
 import authorisation from "../../requests/authentication";
 
+// Переменные состояния
 const dialog = ref<HTMLDialogElement | null>(null);
 const errorMessage = ref("");
 
-const checkLogin: any = inject("checkLogin");
+// Внедрение функции проверки авторизации
+const checkLogin: () => void = inject("checkLogin")!;
 
 onMounted(() => {
     dialog.value = document.querySelector("dialog") as HTMLDialogElement;
@@ -35,29 +37,37 @@ async function loginSubmit(event: Event) {
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
 
-    const response = await authorisation.login(
-        formData.get("email") as string,
-        formData.get("password") as string
-    );
+    // Проверка обязательных полей
+    const email = formData.get("email")?.toString().trim();
+    const password = formData.get("password")?.toString().trim();
 
-    console.log(response);
-    // // check status
-    if (response.status === 200) {
-        const { accessToken } = await response.json();
-        console.log(accessToken);
-        errorMessage.value = "";
-        // set token in local storage
-        localStorage.setItem("token", accessToken);
-        // clear and close dialog
-        form.reset();
-        dialog.value?.close();
-        checkLogin();
-    } else if (response.status === 401) {
-        errorMessage.value = "Invalid credentials";
-        console.log("Invalid credentials");
-    } else {
-        errorMessage.value = "Something went wrong";
-        console.log("Something went wrong");
+    if (!email || !password) {
+        errorMessage.value = "Email and password are required";
+        return;
+    }
+
+    try {
+        // Отправка запроса
+        const response = await authorisation.login(email, password);
+
+        const data = await response.json();
+
+        if (data.accessToken) {
+            errorMessage.value = "";
+
+            localStorage.setItem("token", data.accessToken);
+            form.reset();
+            dialog.value?.close();
+            checkLogin();
+        } else if (response.status === 401) {
+            errorMessage.value = "Invalid email or password";
+        } else {
+            errorMessage.value = "Something went wrong. Please try again.";
+            console.log(response)
+        }
+    } catch (error) {
+        console.error("Login failed:", error);
+        errorMessage.value = "An error occurred. Please try again later.";
     }
 }
 </script>
