@@ -1,12 +1,12 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../config/db";
-import User from "./user"; // Импортируем модель User
+import User from "./user";  // Импортируем модель User
 
 interface FileAttributes {
   id: number;
   userId: number;
   filename: string;
-  filePath: string;
+  fileData: Buffer;  // Хранение данных файла как Buffer (бинарные данные)
   status: string;
 }
 
@@ -16,7 +16,7 @@ class File extends Model<FileAttributes, FileCreationAttributes> implements File
   public id!: number;
   public userId!: number;
   public filename!: string;
-  public filePath!: string;
+  public fileData!: Buffer;  // Хранение бинарных данных
   public status!: string;
 
   public readonly createdAt!: Date;
@@ -43,14 +43,14 @@ File.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    filePath: {
-      type: DataTypes.STRING,
+    fileData: {
+      type: DataTypes.BLOB("long"),  // Используем тип BLOB для хранения бинарных данных
       allowNull: false,
     },
     status: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: "pending",
+      defaultValue: "pending",  // Статус по умолчанию
     },
   },
   {

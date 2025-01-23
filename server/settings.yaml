@@ -5,7 +5,7 @@ basefolder:
 secretkey: th!s!s@very$ecret#ey
 
 accounts:
-    admin:
+    admin@gmail.com:
         password: secretadmin
 
     guest:

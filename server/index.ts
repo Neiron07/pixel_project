@@ -27,7 +27,7 @@ app.use("/auth", authenticationRouter);
 import { router as navigationRouter } from "@routes/files/navigation";
 app.use("/navigate", navigationRouter);
 
-import { router as uploadRouter } from "@routes/files/upload";
+import { router as uploadRouter } from "@routes/files/UserFiles";
 app.use("/upload", uploadRouter);
 
 import { router as downloadRouter } from "@routes/files/download";
