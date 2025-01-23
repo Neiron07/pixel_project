@@ -1,13 +1,13 @@
 import express from "express";
 import cors from "cors";
-
-import auth from "./middleware/authenticator";
+import { initializeDatabase } from "./models";
 
 import createStorageFolders from "@functions/files/createstoragefolders";
 
 // setup the folders - data, temp
 (async function () {
     await createStorageFolders();
+    await initializeDatabase();
 })();
 
 // create require

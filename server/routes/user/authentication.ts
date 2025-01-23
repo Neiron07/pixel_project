@@ -1,62 +1,116 @@
 import express from "express";
-import _settings from "@functions/files/settings";
+import bcrypt from "bcrypt";
+import { body, validationResult } from "express-validator";
+import jwt from "jsonwebtoken";
+import jwtauthenticator from "../../middleware/authenticator"; // Укажите корректный путь до вашего middleware
+import User from "../../models/user";
+import { SECRET_KEY, TOKEN_EXPIRATION } from "../../config/config";
 
-const settings = _settings();
 const router = express.Router();
 
-import * as jwt from "jsonwebtoken";
-
-interface Account {
-    password: string;
-    hide: string[];
-}
-
-interface Accounts {
-    [username: string]: Account;
-}
-
-router.post("/login", async (req: express.Request, res: express.Response) => {
+// Регистрация пользователя
+router.post(
+  "/register",
+  [
+    body("username").isLength({ min: 3 }).withMessage("Имя пользователя должно содержать минимум 3 символа."),
+    body("email").isEmail().withMessage("Некорректный email."),
+    body("password").isLength({ min: 6 }).withMessage("Пароль должен быть минимум 6 символов."),
+  ],
+  async (req: express.Request, res: express.Response) => {
     try {
-        const { username, password } = req.body;
-        console.log(username, password);
-        const accounts: Accounts = (await settings).accounts;
-        const account = accounts[username];
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
 
-        // check if account exists
-        if (!account) {
-            return res.status(401).send("Account does not exist");
-        }
-        // check if password is correct
-        if (account.password !== password) {
-            return res.status(401).send("Incorrect password");
-        }
-        // the password is correct
-        const secretKey = (await settings).secretkey;
-        const accessToken = jwt.sign(username, secretKey);
-        return res.status(200).send({ accessToken });
+      const { username, email, password } = req.body;
+
+      // Проверка на уникальность email
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
+        return res.status(409).json({ error: "Пользователь с таким email уже существует." });
+      }
+
+      // Хэширование пароля
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Сохранение пользователя
+      const newUser = await User.create({ username, email, password: hashedPassword });
+
+      res.status(201).json({
+        message: "Пользователь успешно зарегистрирован.",
+        user: { id: newUser.id, username: newUser.username, email: newUser.email },
+      });
     } catch (error) {
-        return res.status(500).send("Internal server error");
+      console.error("Ошибка регистрации:", error);
+      res.status(500).json({ error: "Внутренняя ошибка сервера." });
     }
+  }
+);
+
+// Авторизация пользователя
+router.post(
+  "/login",
+  [
+    body("email").isEmail().withMessage("Некорректный email."),
+    body("password").exists().withMessage("Пароль обязателен."),
+  ],
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const { email, password } = req.body;
+
+      // Поиск пользователя
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return res.status(401).json({ error: "Неверный email или пароль." });
+      }
+
+      // Проверка пароля
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: "Неверный email или пароль." });
+      }
+
+      // Создание JWT
+      const accessToken = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, {
+        expiresIn: TOKEN_EXPIRATION,
+      });
+
+      res.status(200).json({ message: "Авторизация успешна.", accessToken });
+    } catch (error) {
+      console.error("Ошибка авторизации:", error);
+      res.status(500).json({ error: "Внутренняя ошибка сервера." });
+    }
+  }
+);
+
+// Получение текущего пользователя
+router.get("/whoami", jwtauthenticator, async (req: express.Request, res: express.Response) => {
+  try {
+    const userId = (req as any).user?.id; // Берем id из токена, добавленного middleware
+
+    if (!userId) {
+      return res.status(401).json({ error: "Пользователь не авторизован." });
+    }
+
+    // Используем findByPk для поиска пользователя по id
+    const user = await User.findByPk(userId, { attributes: ["id", "username", "email"] });
+
+    if (!user) {
+      return res.status(404).json({ error: "Пользователь не найден." });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Ошибка получения данных пользователя:", error);
+    res.status(500).json({ error: "Внутренняя ошибка сервера." });
+  }
 });
 
-router.get("/whoami", async (req: express.Request, res: express.Response) => {
-    try {
-        const authHeader = req.headers["authorization"];
-        const token = authHeader && authHeader.split(" ")[1];
-        // if there is no token, return 401
-        if (token == null) return res.sendStatus(401);
-
-        // verify the token
-        const secretKey = (await settings).secretkey;
-        jwt.verify(token, secretKey, async (err: any, user: any) => {
-            if (err) {
-                return res.status(403).send("logged out");
-            }
-            return res.status(200).send(user);
-        });
-    } catch (error) {
-        return res.status(500).send("Internal server error");
-    }
-});
 
 export { router as authenticationRouter };

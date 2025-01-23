@@ -1,6 +1,7 @@
 import express from "express";
 import * as jwt from "jsonwebtoken";
 import Logging from "@functions/logging";
+import { SECRET_KEY } from "./../config/config";
 
 import _settings from "@functions/files/settings";
 const settings = _settings();
@@ -8,11 +9,8 @@ const settings = _settings();
 interface IPermissions {
     canCreateFolder: boolean;
     canUpload: boolean;
-
     canDownload: boolean;
-
     canNavigate: boolean;
-
     canDeleteFile: boolean;
     canDeleteFolder: boolean;
 }
@@ -58,24 +56,15 @@ async function jwtauthenticator(
         if (token == null) return res.sendStatus(401);
 
         // verify the token
-        const secretKey = (await settings).secretkey;
+        const secretKey = SECRET_KEY;
         jwt.verify(token, secretKey, async (err: any, user: any) => {
             console.log(err);
             // if there is an error, return 403
             if (err) return res.sendStatus(403);
             // if the token is verified, continue
             (req as any).user = user;
-
-            const userAccount = (await settings).accounts[user];
-
-            const permissions: IPermissions = setPermissions(user === "admin", userAccount);
-            // set permissions to res.locals
-            res.locals.permissions = permissions;
-            res.locals.accountName = user;
-            res.locals.account = userAccount;
-
-            next();
         });
+        next();
     }
 }
 

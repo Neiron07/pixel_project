@@ -1,12 +1,13 @@
 import { Sequelize } from "sequelize";
+import { DB_CONFIG } from "./config";
 
 const sequelize = new Sequelize(
-  process.env.DB_NAME || "sql12758964",
-  process.env.DB_USER || "sql12758964",
-  process.env.DB_PASSWORD || "NKAlE5LZNu",
+  DB_CONFIG.name || "sql12758964",
+  DB_CONFIG.username || "sql12758964",
+  DB_CONFIG.password || "NKAlE5LZNu",
   {
-    host: process.env.DB_HOST || "sql12.freesqldatabase.com",
-    port: Number(process.env.DB_PORT) || 3306,
+    host: DB_CONFIG.host || "sql12.freesqldatabase.com",
+    port: Number(DB_CONFIG.port) || 3306,
     dialect: "mysql",
     logging: process.env.NODE_ENV === "development", // Логируем запросы только в режиме разработки
   }
