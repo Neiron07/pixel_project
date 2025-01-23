@@ -3,6 +3,8 @@ import cors from "cors";
 import { initializeDatabase } from "./models";
 
 import createStorageFolders from "@functions/files/createstoragefolders";
+import { worker } from './functions/files/fileProcessor';
+import { fileProcessingQueue } from './config/bullQueue';
 
 // setup the folders - data, temp
 (async function () {
@@ -19,6 +21,18 @@ const http = Server(app);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+worker.on('completed', (job) => {
+  console.log(`Job completed: ${job.id}`);
+});
+
+worker.on('failed', (job, err) => {
+  if (job) {
+    console.error(`Job failed: ${job.id}`, err);
+  } else {
+    console.error('Job failed: undefined job', err);
+  }
+});
 
 // routes =============================================================
 import { authenticationRouter } from "@routes/user/authentication";

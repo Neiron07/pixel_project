@@ -3,9 +3,9 @@ import multer from "multer";
 import MulterOptions from "../../middleware/multersettings";
 import _settings from "@functions/files/settings";
 import authenticator from "../../middleware/authenticator";
-
 import Logging, { ApiType } from "@functions/logging";
-import File from "../../models/files";  // Импортируем модель File
+import File from "../../models/files";
+import { fileProcessingQueue } from "../../config/bullQueue";
 
 const settings = _settings();
 
@@ -41,6 +41,13 @@ router.post("/", authenticator, async (req: express.Request, res: express.Respon
                 });
 
                 Logging.upload(ApiType.POST, `[SUCCESS] File saved to DB: ${file.originalname}`);
+
+                // Добавляем задачу в очередь для проверки файла
+                await fileProcessingQueue.add('check-file', {
+                    fileId: newFile.id,
+                    fileData: file.buffer, // Передаем данные файла для проверки
+                });
+
             } catch (error) {
                 Logging.upload(ApiType.POST, `[ERROR] Error saving file to DB: ${file.originalname}`);
                 return res.status(500).send("Error saving file to database.");

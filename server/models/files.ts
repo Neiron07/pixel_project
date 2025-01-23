@@ -8,6 +8,7 @@ interface FileAttributes {
   filename: string;
   fileData: Buffer;  // Хранение данных файла как Buffer (бинарные данные)
   status: string;
+  reason: string | null; 
 }
 
 interface FileCreationAttributes extends Optional<FileAttributes, "id"> {}
@@ -18,6 +19,7 @@ class File extends Model<FileAttributes, FileCreationAttributes> implements File
   public filename!: string;
   public fileData!: Buffer;  // Хранение бинарных данных
   public status!: string;
+  public reason!: string | null; 
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -51,6 +53,10 @@ File.init(
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: "pending",  // Статус по умолчанию
+    },
+    reason: {
+      type: DataTypes.STRING, // Поле для хранения причин
+      allowNull: true, // Можно оставить пустым
     },
   },
   {
