@@ -14,4 +14,6 @@ export const DB_CONFIG = {
   database: process.env.DB_NAME || "app_database",
 };
 export const APP_PORT = parseInt(process.env.APP_PORT || "3000", 10);
+export const REDIS_PORT = parseInt(process.env.REDIS_PORT || "6379");
+export const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
 export const ENVIRONMENT = process.env.NODE_ENV || "development";

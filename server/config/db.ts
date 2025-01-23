@@ -3,9 +3,9 @@ import { DB_CONFIG } from "./config";
 
 // 
 const sequelize = new Sequelize(
-  DB_CONFIG.name || "sql12758964",
-  DB_CONFIG.username || "sql12758964",
-  DB_CONFIG.password || "NKAlE5LZNu",
+  DB_CONFIG.name,
+  DB_CONFIG.username,
+  DB_CONFIG.password,
   {
     host: DB_CONFIG.host || "sql12.freesqldatabase.com",
     port: Number(DB_CONFIG.port) || 3306,

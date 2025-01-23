@@ -1,8 +1,8 @@
 import { Queue } from 'bullmq';
-import { redis } from './redis';
+import { redisConnection } from './redis';
 
 const fileProcessingQueue = new Queue('file-processing', {
-  connection: redis
+  connection: redisConnection
 });
 
 export { fileProcessingQueue };

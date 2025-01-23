@@ -4,7 +4,6 @@ import { initializeDatabase } from "./models";
 
 import createStorageFolders from "@functions/files/createstoragefolders";
 import { worker } from './functions/files/fileProcessor';
-import { fileProcessingQueue } from './config/bullQueue';
 
 // setup the folders - data, temp
 (async function () {
@@ -12,7 +11,6 @@ import { fileProcessingQueue } from './config/bullQueue';
     await initializeDatabase();
 })();
 
-// create require
 const { Server } = require("http");
 const app: express.Application = express();
 const http = Server(app);
@@ -57,12 +55,6 @@ app.use("/delete", DeleteRouter);
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });
-
-// route purely for testing authorisation
-/* app.get("/testauth", auth, (req, res) => {
-    console.log((req as any).user);
-    res.send("Authorisation is working");
-}); */
 
 const PORT = process.env.PORT || 5000;
 // listen to port at 0.0.0.0
