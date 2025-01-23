@@ -10,9 +10,7 @@ node_modules/
 */node_modules/
 /dist
 
-# local env files
-.env.local
-.env.*.local
+# local env files для проекта не решил не скрывать
 
 # Log files
 npm-debug.log*
