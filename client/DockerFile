@@ -1,0 +1,19 @@
+# Используем официальный образ Node.js с Alpine
+FROM node:16-alpine
+
+# Создаем рабочую директорию и устанавливаем ее как текущую
+WORKDIR /usr/src/app
+
+# Копируем все файлы из текущей директории
+COPY . .
+
+# Устанавливаем зависимости для фронтенда
+WORKDIR /usr/src/app/frontend
+RUN yarn install
+
+# Строим фронтенд
+RUN yarn build
+
+# Для продакшн окружения запускаем приложение
+CMD ["yarn", "preview"]
+EXPOSE 8080

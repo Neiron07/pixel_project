@@ -1,21 +1,56 @@
-version: "3"
+version: "3.9"
 services:
-    api:
-        image: localcloud
-        build: .
-        networks:
-            - backend
-        ports:
-            - "5000:5000"
-        volumes:
-            - ./:/usr/src/app
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    networks:
+      - backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - redis
+      - db
+    environment:
+      - REDIS_HOST=redis
+      - DB_HOST=db
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - APP_PORT=${APP_PORT}
+      - NODE_ENV=${NODE_ENV}
 
-    web-cli:
-        image: localcloud
-        networks:
-            - backend
-        command: sh
+  redis:
+    image: redis:7
+    networks:
+      - backend
+
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${DB_NAME}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - backend
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: DockerFile
+    ports:
+      - "8080:80"
+    networks:
+      - backend
+
+volumes:
+  db_data:
 
 networks:
-    backend:
-        driver: bridge
+  backend:
+    driver: bridge
