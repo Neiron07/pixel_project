@@ -5,35 +5,60 @@
         </header>
         <div class="information-container flex-column gap-1" v-if="fileInformation">
             <p>Name: {{ fileInformation.name }}</p>
-            <p>Size: {{ fileInformation.size }}</p>
-            <a
-                :href="'/download?pathname=' + currentPath + '/' + fileInformation.name"
-                class="download button"
-            >
+            <p>Status: {{ fileInformation.status }}</p>
+            <p>Reason: {{ fileInformation.reason }}</p>
+            <button class="download button" @click="downloadFile">
                 <img src="~@/assets/icons/open.svg" alt="open" />
                 open
-            </a>
-            <a
-                :href="'/download/direct?pathname=' + currentPath + '/' + fileInformation.name"
-                class="download button"
-            >
-                <img src="~@/assets/icons/download.svg" alt="download" />
-                download
-            </a>
-            <button class="button red delete" @click="deleteFile">
-                <img src="~@/assets/icons/delete.svg" alt="delete" />
-                delete
             </button>
         </div>
     </article>
 </template>
+
 <script setup lang="ts">
 // props
 const props = defineProps<{
-    fileInformation: { name: string; size: number } | null;
+    fileInformation: { id: number; name: string; reason: string, status: string } | null;
     currentPath: string;
 }>();
 
+// Download file logic
+async function downloadFile() {
+    if (!props.fileInformation) return;
+
+    try {
+        const response = await fetch(`/files/file/${props.fileInformation.id}`, {
+            method: "GET",
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+        });
+
+        if (!response.ok) {
+            alert("Failed to download file. Please try again later.");
+            return;
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        // Create a temporary link to trigger the download
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = props.fileInformation.name; // Use the file's name
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        alert("An error occurred while downloading the file.");
+        console.error(error);
+    }
+}
+
+// Delete file logic
 async function deleteFile() {
     const pathname = props.currentPath + "/" + props.fileInformation?.name;
     try {
@@ -51,7 +76,7 @@ async function deleteFile() {
         });
 
         if (response.status === 200) {
-            // TODO: just remove thefile from dom
+            // TODO: just remove the file from DOM
             window.location.reload();
         } else {
             alert(
@@ -63,6 +88,7 @@ async function deleteFile() {
     }
 }
 </script>
+
 <style scoped>
 .file-information {
     margin-bottom: 1rem;

@@ -1,4 +1,15 @@
 class Authorisation {
+    static async register(username: string, email: string, password: string ) {
+        console.log(username, email, password)
+        const response = await fetch(`/user/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, email, password }),
+        });
+        console.log(response)
+        return await this.handleResponse(response);
+    }
+
     static async login(email: string, password: string) {
         try {
             const response = await fetch(`/user/login`, {
@@ -6,27 +17,15 @@ class Authorisation {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    email: email,
-                    password: password,
-                }),
+                body: JSON.stringify({ email, password }),
             });
-    
-            const responseBody = await response.text();
-    
-            if (!response.ok) {
-                try {
-                    const errorData = JSON.parse(responseBody);
-                    throw new Error(errorData.message || "Login failed");
-                } catch {
-                    throw new Error(responseBody || "Login failed");
-                }
-            }
-    
-            const data = JSON.parse(responseBody);
-            console.log(data);
-            await Authorisation.store(data.accessToken);
-            return data; 
+
+            const data = await this.handleResponse(response);
+            console.log("Login successful:", data);
+
+            await this.store(data.accessToken);
+
+            return data;
         } catch (error) {
             console.error("Login error:", error.message);
             throw error;
@@ -35,7 +34,7 @@ class Authorisation {
 
     static async logout() {
         try {
-            await Authorisation.clear();
+            await this.clear();
             console.log("Successfully logged out.");
         } catch (error) {
             console.error("Logout error:", error);
@@ -53,44 +52,54 @@ class Authorisation {
     static async clear() {
         localStorage.removeItem("token");
     }
-
-    // Проверка, кто авторизован
     static async whoami() {
         try {
             const response = await fetch(`/user/whoami`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${await Authorisation.get()}`,
+                    Authorization: `Bearer ${await this.get()}`,
                 },
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Unauthorized");
-            }
-
-            const userData = await response.json();
-            return userData; 
+            return await this.handleResponse(response);
         } catch (error) {
             console.error("Whoami error:", error);
             throw error;
         }
     }
 
-    // Проверка авторизации
     static async isAuthenticated(): Promise<boolean> {
-        const token = await Authorisation.get();
+        const token = await this.get();
         if (!token) return false;
 
-        // Опционально: проверка истечения срока токена
         try {
-            const response = await Authorisation.whoami();
-            return !!response; // Если успешно, пользователь авторизован
-        } catch (error) {
-            return false; // Ошибка говорит о том, что токен недействителен
+            const user = await this.whoami();
+            return !!user;
+        } catch {
+            return false;
         }
     }
+
+    private static async handleResponse(response: Response) {
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Request failed with status ${response.status}: ${errorText}`);
+        }
+    
+        const text = await response.text();
+        
+        // If the response is empty (204 No Content), return an empty object
+        if (!text) return {};
+    
+        try {
+            return JSON.parse(text);
+        } catch {
+            console.error("Invalid JSON response:", text);
+            throw new Error(text || "An unexpected error occurred.");
+        }
+    }
+    
 }
 
 export default Authorisation;

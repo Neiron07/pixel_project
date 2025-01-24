@@ -1,74 +1,78 @@
 <template>
-    <BaseModal :modal-name="'login'" :heading="'Login'" @submit="loginSubmit">
+    <BaseModal ref="dialog" :modal-name="'login'" :heading="isLogin ? 'Login' : 'Register'" @submit="submitHandler">
         <div class="form-container flex-column gap-1">
+            <div v-if="!isLogin" class="form-item">
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" v-model="username" />
+            </div>
             <div class="form-item">
                 <label for="email">Email</label>
-                <input type="email" name="email" id="email" />
+                <input type="email" name="email" id="email" v-model="email" />
             </div>
             <div class="form-item">
                 <label for="password">Password</label>
-                <input type="password" name="password" id="password" />
+                <input type="password" name="password" id="password" v-model="password" />
             </div>
         </div>
         <p class="error">{{ errorMessage }}</p>
-        <button type="submit">Login</button>
+        <button type="submit">{{ isLogin ? 'Login' : 'Register' }}</button>
+        <button type="button" class="switch-button" @click="switchMode">
+            Switch to {{ isLogin ? 'Register' : 'Login' }}
+        </button>
     </BaseModal>
 </template>
+
 <script setup lang="ts">
-import { ref, onMounted, inject } from "vue";
+import { ref } from "vue";
 import BaseModal from "./BaseModal.vue";
 
-// Импорт запросов
-import authorisation from "../../requests/authentication";
-
-// Переменные состояния
-const dialog = ref<HTMLDialogElement | null>(null);
+const email = ref("");
+const password = ref("");
+const username = ref("");
 const errorMessage = ref("");
+const isLogin = ref(true);
 
-// Внедрение функции проверки авторизации
-const checkLogin: () => void = inject("checkLogin")!;
+function switchMode() {
+    isLogin.value = !isLogin.value;
+}
 
-onMounted(() => {
-    dialog.value = document.querySelector("dialog") as HTMLDialogElement;
-});
-
-async function loginSubmit(event: Event) {
+async function submitHandler(event: Event) {
     event.preventDefault();
-    const form = event.target as HTMLFormElement;
-    const formData = new FormData(form);
 
-    // Проверка обязательных полей
-    const email = formData.get("email")?.toString().trim();
-    const password = formData.get("password")?.toString().trim();
-
-    if (!email || !password) {
-        errorMessage.value = "Email and password are required";
+    if (!email.value || !password.value || (!isLogin.value && !username.value)) {
+        errorMessage.value = "All fields are required.";
         return;
     }
+    //особо не заморачивался
+    const url = isLogin.value ? "http://localhost:5000/user/login" : "http://localhost:5000/user/register";
+    const body = isLogin.value
+        ? { email: email.value, password: password.value }
+        : { username: username.value, email: email.value, password: password.value };
 
     try {
-        const response = await authorisation.login(email, password);
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+        });
 
         const data = await response.json();
 
-        if (data.accessToken) {
+        if (response.ok) {
             errorMessage.value = "";
-
             localStorage.setItem("token", data.accessToken);
-            form.reset();
-            dialog.value?.close();
-            checkLogin();
-        } else if (response.status === 401) {
-            errorMessage.value = "Invalid email or password";
-        } 
+            window.location.reload();
+        } else {
+            // Обработка ошибки API
+            errorMessage.value = data.error || "An error occurred.";
+        }
     } catch (error) {
-        console.error("Login failed:", error);
-        form.reset();
-        dialog.value?.close();
-        checkLogin();
+        console.error("Authentication failed:", error);
+        errorMessage.value = "An error occurred, please try again later.";
     }
 }
 </script>
+
 <style scoped>
 .form-item {
     display: grid;
@@ -78,12 +82,15 @@ async function loginSubmit(event: Event) {
 }
 
 input[type="text"],
+input[type="email"],
 input[type="password"] {
     padding: 0.5rem;
     border: 1px solid var(--secondary-color);
     border-radius: 5px;
 }
-button[type="submit"] {
+
+button[type="submit"],
+.switch-button {
     padding: 0.5rem;
     background-color: var(--accent-color);
     color: var(--white);
@@ -91,18 +98,19 @@ button[type="submit"] {
     border-radius: 5px;
     cursor: pointer;
 }
-button[type="submit"]:hover {
+
+button[type="submit"]:hover,
+.switch-button:hover {
     background-color: var(--accent-color-hover);
 }
 
 .error {
     color: red;
+    margin-top: 1rem;
 }
 
-@media screen and (max-width: 600px) {
-    .form-item {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
+.switch-button {
+    margin-top: 1rem;
+    background-color: var(--secondary-color);
 }
 </style>
