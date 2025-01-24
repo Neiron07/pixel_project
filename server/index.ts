@@ -7,10 +7,8 @@ import { initializeDatabase } from "./models";
 import createStorageFolders from "./utils/createstoragefolders";
 import { worker } from "./services/queue/file.processor";
 
-// Your custom logger
 import Logging from "./utils/logging";
 
-// Your new routes
 import fileRouter from "./routes/file.routes";
 import userRouter from "./routes/user.routes";
 

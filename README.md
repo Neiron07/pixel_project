@@ -35,6 +35,7 @@ To set it up for development, follow these steps, or check the releases for a be
 
     ```bash
     TERMINAL 1
+    cd client
     yarn install
     yarn start
 
@@ -68,7 +69,6 @@ To set it up for development, follow these steps, or check the releases for a be
 - [x] View File Size
 - [x] Colored logging of events (for server console)
 - [x] Implement security features - Restricted access to other files on the system by blocking requests outside the home directory (this has been done for navigation, file downloads, and deletions)
-- [x] Password protect files (for downloading on other devices)
 
 ## Development Oriented Plans :bulb:
 
